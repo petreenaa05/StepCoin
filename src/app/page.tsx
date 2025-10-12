@@ -33,10 +33,10 @@ export default function Home() {
     >
       {/* Header */}
       <header
-        className="p-6 flex justify-between items-center backdrop-blur-sm border-b"
+        className="p-6 flex justify-between items-center backdrop-blur-sm"
         style={{
-          backgroundColor: "var(--surface-card)",
-          borderColor: "var(--surface-border)",
+          backgroundColor: "#000000",
+          borderBottom: "none",
         }}
       >
         <div className="flex items-center space-x-3">
@@ -63,7 +63,7 @@ export default function Home() {
           {/* Liquid Ether Background Animation */}
           <div className="absolute inset-0 z-0">
             <LiquidEther
-              colors={['#F70670', '#FF6EC7', '#E91E63']}
+              colors={["#F70670", "#FF6EC7", "#E91E63"]}
               mouseForce={20}
               cursorSize={100}
               isViscous={false}
@@ -99,7 +99,7 @@ export default function Home() {
                 {/* Main Title */}
                 <div className="space-y-6">
                   <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold text-white leading-tight tracking-tight">
-                    <TextType 
+                    <TextType
                       text={["Prove Your Fitness,\nClaim Your Rewards"]}
                       typingSpeed={85}
                       pauseDuration={1500}
@@ -111,7 +111,7 @@ export default function Home() {
                   </h1>
 
                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-white/90 leading-relaxed">
-                    No Data Leaks, Only {" "}
+                    No Data Leaks, Only{" "}
                     <span className="text-gradient-pink font-semibold">
                       Healthy Gains.
                     </span>
@@ -121,8 +121,9 @@ export default function Home() {
                 {/* Subtitle */}
                 <div className="max-w-2xl">
                   <p className="text-lg md:text-xl text-white/80 leading-relaxed font-light">
-
-                    Sync your steps, verify, and earn StepCoin while unlocking medals and achievements. Get fit, join challenges, and win real rewards for activity.
+                    Sync your steps, verify, and earn StepCoin while unlocking
+                    medals and achievements. Get fit, join challenges, and win
+                    real rewards for activity.
                   </p>
                 </div>
 
