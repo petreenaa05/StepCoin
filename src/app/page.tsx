@@ -10,6 +10,7 @@ import { ProofModal } from "../components/ui/ProofModal";
 import { Footer } from "../components/ui/Footer";
 import TextType from "../components/ui/TextType";
 import LiquidEther from "../components/ui/LiquidEther";
+import GooeyNav from "../components/ui/GooeyNav";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -33,7 +34,7 @@ export default function Home() {
     >
       {/* Header */}
       <header
-        className="p-6 flex justify-between items-center backdrop-blur-sm"
+        className="p-6 flex justify-between items-center backdrop-blur-sm relative z-50"
         style={{
           backgroundColor: "#000000",
           borderBottom: "none",
@@ -50,6 +51,35 @@ export default function Home() {
             StepCoin
           </h1>
         </div>
+        
+        {/* Floating Gooey Navigation - Only show when connected */}
+        {isConnected && (
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <GooeyNav
+              key={activeTab} // Force re-render when activeTab changes
+              items={[
+                { label: "📊 Dashboard", href: "#dashboard" },
+                { label: "🏆 Achievements", href: "#achievements" },
+                { label: "🥇 Leaderboard", href: "#leaderboard" }
+              ]}
+              particleCount={12}
+              particleDistances={[60, 8]}
+              particleR={80}
+              initialActiveIndex={
+                activeTab === "dashboard" ? 0 :
+                activeTab === "achievements" ? 1 : 2
+              }
+              animationTime={500}
+              timeVariance={250}
+              colors={[1, 2, 3, 4]}
+              onItemClick={(index) => {
+                const tabs = ["dashboard", "achievements", "leaderboard"];
+                setActiveTab(tabs[index] as any);
+              }}
+            />
+          </div>
+        )}
+        
         <ConnectButton />
       </header>
 
@@ -137,59 +167,22 @@ export default function Home() {
         </div>
       ) : (
         /* Connected Dashboard */
-        <main className="container mx-auto px-6 py-12">
+        <main className="container mx-auto px-6 py-12 relative">
           {/* Welcome Section */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2 font-mono">
+          <div className="text-left mb-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 font-mono">
               Welcome back! 👋
             </h2>
-            <p style={{ color: "var(--text-secondary)" }}>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
             </p>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex justify-center mb-8">
-            <div
-              className="backdrop-blur-lg rounded-2xl p-2 flex space-x-2 border"
-              style={{
-                backgroundColor: "var(--surface-glass)",
-                borderColor: "var(--surface-border)",
-              }}
-            >
-              {[
-                { id: "dashboard", label: "Dashboard", icon: "📊" },
-                { id: "achievements", label: "Achievements", icon: "🏆" },
-                { id: "leaderboard", label: "Leaderboard", icon: "🥇" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 font-mono ${
-                    activeTab === tab.id
-                      ? "text-white shadow-lg"
-                      : "hover:text-white"
-                  }`}
-                  style={
-                    activeTab === tab.id
-                      ? {
-                          background: "var(--gradient-pink)",
-                          color: "var(--text-primary)",
-                        }
-                      : {
-                          color: "var(--text-secondary)",
-                        }
-                  }
-                >
-                  <span>{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Main Content Area */}
+          <div className="min-h-screen">
 
-          {/* Dashboard Content */}
-          {activeTab === "dashboard" && (
+            {/* Dashboard Content */}
+            {activeTab === "dashboard" && (
             <div className="space-y-8">
               {/* Stats Cards */}
               <div className="grid md:grid-cols-4 gap-6">
@@ -286,8 +279,9 @@ export default function Home() {
             </div>
           )}
 
-          {activeTab === "achievements" && <AchievementsGrid />}
-          {activeTab === "leaderboard" && <Leaderboard />}
+            {activeTab === "achievements" && <AchievementsGrid />}
+            {activeTab === "leaderboard" && <Leaderboard />}
+          </div>
         </main>
       )}
 
