@@ -1,136 +1,107 @@
 export function Footer() {
   return (
-    <footer
-      className="backdrop-blur-lg border-t"
-      style={{
-        backgroundColor: "var(--primary-dark)",
-        borderColor: "var(--surface-border)",
-      }}
-    >
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center space-x-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: "var(--gradient-pink)" }}
-              >
-                <span className="text-white text-sm font-bold">SC</span>
-              </div>
-              <h3
-                className="text-xl font-bold tracking-tight font-mono"
-                style={{ color: "var(--text-primary)" }}
-              >
-                StepCoin
-              </h3>
-            </div>
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              Turn your fitness activities into cryptocurrency with
-              privacy-preserving proofs.
+    <footer className="bg-black/50 backdrop-blur-sm border-t border-pink-500/20 py-8 mt-16">
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-pink-400">StepCoin</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              The decentralized fitness rewards layer powered by zero-knowledge
+              proofs.
             </p>
           </div>
 
-          <div>
-            <h4
-              className="font-bold mb-3"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Technology
-            </h4>
+          <div className="space-y-4">
+            <h4 className="text-white font-semibold">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <a
                   href="#"
-                  className="transition-colors"
-                  style={{ color: "var(--text-secondary)" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "var(--text-primary)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "var(--text-secondary)")
-                  }
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
                 >
-                  Reclaim Protocol
+                  Dashboard
                 </a>
               </li>
               <li>
                 <a
                   href="#"
-                  className="transition-colors"
-                  style={{ color: "var(--text-secondary)" }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "var(--text-primary)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "var(--text-secondary)")
-                  }
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
                 >
-                  1MB.io DataCoins
+                  Rewards
                 </a>
               </li>
               <li>
                 <a
                   href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
                 >
-                  Lighthouse Storage
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Zero-Knowledge Proofs
+                  Leaderboard
                 </a>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-white font-bold mb-3">Supported Apps</h4>
+          <div className="space-y-4">
+            <h4 className="text-white font-semibold">Community</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <span className="text-gray-400">📱 Google Fit</span>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  Discord
+                </a>
               </li>
               <li>
-                <span className="text-gray-400">🏃‍♀️ Strava</span>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  Twitter
+                </a>
               </li>
               <li>
-                <span className="text-gray-400">❤️ Apple Health</span>
-              </li>
-              <li>
-                <span className="text-gray-400">⌚ Fitbit</span>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  GitHub
+                </a>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-white font-bold mb-3">Networks</h4>
+          <div className="space-y-4">
+            <h4 className="text-white font-semibold">Legal</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <span className="text-gray-400">⚡ Base</span>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  Privacy Policy
+                </a>
               </li>
               <li>
-                <span className="text-gray-400">🟣 Polygon</span>
-              </li>
-              <li>
-                <span className="text-gray-400">🧪 Sepolia</span>
-              </li>
-              <li>
-                <span className="text-gray-400">📈 Ethereum</span>
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-pink-400 transition-colors"
+                >
+                  Terms of Service
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2025 StepCoin. Built for the Consumer DataCoin Hackathon.
+            © 2024 StepCoin. All rights reserved.
           </p>
           <div className="flex space-x-4 mt-4 md:mt-0">
-            <span className="text-gray-400 text-sm">Privacy First 🔐</span>
-            <span className="text-gray-400 text-sm">Open Source 🌟</span>
+            <span className="text-xs text-gray-500">
+              Built with ❤️ for the fitness community
+            </span>
           </div>
         </div>
       </div>

@@ -53,112 +53,94 @@ export default function Home() {
 
       {/* Main Content */}
       {!isConnected ? (
-        /* Futuristic Landing Page */
-        <div className="relative min-h-screen flex items-center overflow-hidden">
-          <div className="container mx-auto px-6 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              {/* Left Content */}
-              <div className="space-y-8">
+        /* Black Background Landing Page */
+        <div
+          className="relative min-h-screen flex items-center overflow-hidden"
+          style={{ background: "#000000" }}
+        >
+          {/* Subtle Pink Accent */}
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              background: `
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(247, 6, 112, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 20% 80%, rgba(233, 30, 99, 0.2) 0%, transparent 50%)
+              `,
+            }}
+          />
+
+          <div className="container mx-auto px-8 relative z-10">
+            <div className="max-w-6xl">
+              {/* Hero Content - Left Aligned */}
+              <div className="space-y-12">
+                {/* Main Title */}
                 <div className="space-y-6">
-                  <h1 className="text-6xl lg:text-8xl font-bold text-white leading-none tracking-tight">
-                    FUTURE
+                  <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold text-white leading-tight tracking-tight">
+                    Prove Your Fitness,
                     <br />
-                    <span className="text-gradient-pink">FORWARD</span>
+                    Claim Your{" "}
+                    <span className="text-gradient-pink">Rewards</span>
                   </h1>
 
-                  <div className="space-y-4 max-w-lg">
-                    <p className="text-xl text-white font-light">
-                      Innovate. Create.{" "}
-                      <span className="text-gradient-pink font-semibold">
-                        Elevate
-                      </span>{" "}
-                      your fitness experience.
-                    </p>
-
-                    <p
-                      className="text-base leading-relaxed"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      Transform your daily activities into cryptocurrency
-                      rewards with privacy-preserving zero-knowledge proofs
-                      powered by cutting-edge blockchain technology.
-                    </p>
-                  </div>
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-white/90 leading-relaxed">
+                    with Secure Tools at Your{" "}
+                    <span className="text-gradient-pink font-semibold">
+                      Fingertips
+                    </span>
+                  </h2>
                 </div>
 
-                <div className="pt-6">
-                  <button
-                    className="group px-10 py-4 border text-white font-medium rounded-full transition-all duration-500 uppercase tracking-widest text-sm hover:shadow-2xl relative overflow-hidden"
-                    style={{
-                      borderColor: "var(--accent-pink)",
-                      background: "transparent",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "var(--gradient-pink)";
-                      e.currentTarget.style.borderColor = "transparent";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 20px 40px rgba(247, 6, 112, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.borderColor = "var(--accent-pink)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
-                    <span className="relative z-10">LEARN MORE</span>
-                  </button>
+                {/* Subtitle */}
+                <div className="max-w-2xl">
+                  <p className="text-lg md:text-xl text-white/80 leading-relaxed font-light">
+                    <span className="text-white font-semibold">
+                      No Data Leaks, Only Healthy Gains.
+                    </span>{" "}
+                    Empower your fitness journey with cutting-edge tools, smart
+                    investment options and knowledge from trusted experts.
+                  </p>
                 </div>
-              </div>
 
-              {/* Right Content - 3D Cube */}
-              <div className="flex justify-center lg:justify-end">
-                <div className="relative">
-                  {/* 3D Cube Container */}
-                  <div className="relative w-64 h-64">
-                    {/* Glow effect */}
-                    <div
-                      className="absolute inset-0 rounded-2xl opacity-60 animate-pulse"
-                      style={{
-                        background: "var(--gradient-pink)",
-                        filter: "blur(20px)",
-                        transform: "rotate(12deg) scale(1.1)",
-                      }}
-                    />
+                {/* Action Buttons */}
+                <div className="pt-8">
+                  <ConnectButton />
+                </div>
 
-                    {/* Main cube */}
-                    <div
-                      className="relative w-full h-full rounded-2xl transform rotate-12 transition-transform duration-700 hover:rotate-6"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #F70670 0%, #E91E63 50%, #AD1457 100%)",
-                        boxShadow: `
-                          0 0 60px rgba(247, 6, 112, 0.4),
-                          inset 0 0 60px rgba(255, 255, 255, 0.1),
-                          inset 0 -20px 40px rgba(0, 0, 0, 0.2)
-                        `,
-                      }}
-                    >
-                      {/* Inner highlight */}
-                      <div
-                        className="absolute top-8 left-8 right-8 h-16 rounded-lg opacity-30"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, rgba(255, 255, 255, 0.8), transparent)",
-                        }}
-                      />
+                {/* Stats Section */}
+                <div className="pt-20">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl">
+                    <div>
+                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
+                        $5.1M
+                      </div>
+                      <div className="text-sm text-white/60 uppercase tracking-wider">
+                        Assets Secured
+                      </div>
                     </div>
-
-                    {/* Reflection */}
-                    <div
-                      className="absolute top-full left-1/2 transform -translate-x-1/2 w-48 h-12 mt-8 rounded-full opacity-20"
-                      style={{
-                        background:
-                          "radial-gradient(ellipse, #F70670 0%, rgba(247, 6, 112, 0.5) 40%, transparent 70%)",
-                        filter: "blur(12px)",
-                      }}
-                    />
+                    <div>
+                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
+                        100K+
+                      </div>
+                      <div className="text-sm text-white/60 uppercase tracking-wider">
+                        Active Users
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
+                        2.5K <span className="text-gradient-pink">STEP</span>
+                      </div>
+                      <div className="text-sm text-white/60 uppercase tracking-wider">
+                        Tokens Earned
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
+                        24/7
+                      </div>
+                      <div className="text-sm text-white/60 uppercase tracking-wider">
+                        Support
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
