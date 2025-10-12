@@ -9,6 +9,7 @@ import { Leaderboard } from "../components/ui/Leaderboard";
 import { ProofModal } from "../components/ui/ProofModal";
 import { Footer } from "../components/ui/Footer";
 import TextType from "../components/ui/TextType";
+import LiquidEther from "../components/ui/LiquidEther";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -54,14 +55,35 @@ export default function Home() {
 
       {/* Main Content */}
       {!isConnected ? (
-        /* Black Background Landing Page */
+        /* Black Background Landing Page with Liquid Animation */
         <div
           className="relative min-h-screen flex items-center overflow-hidden"
           style={{ background: "#000000" }}
         >
-          {/* Subtle Pink Accent */}
+          {/* Liquid Ether Background Animation */}
+          <div className="absolute inset-0 z-0">
+            <LiquidEther
+              colors={['#F70670', '#FF6EC7', '#E91E63']}
+              mouseForce={20}
+              cursorSize={100}
+              isViscous={false}
+              viscous={30}
+              iterationsViscous={32}
+              iterationsPoisson={32}
+              resolution={0.5}
+              isBounce={false}
+              autoDemo={true}
+              autoSpeed={0.3}
+              autoIntensity={1.8}
+              takeoverDuration={0.25}
+              autoResumeDelay={3000}
+              autoRampDuration={0.6}
+            />
+          </div>
+
+          {/* Subtle Pink Accent Overlay */}
           <div
-            className="absolute inset-0 opacity-20"
+            className="absolute inset-0 opacity-10 z-1"
             style={{
               background: `
                 radial-gradient(ellipse 60% 40% at 80% 20%, rgba(247, 6, 112, 0.3) 0%, transparent 60%),
@@ -70,7 +92,7 @@ export default function Home() {
             }}
           />
 
-          <div className="container mx-auto px-8 relative z-10">
+          <div className="container mx-auto px-8 relative z-20">
             <div className="max-w-6xl">
               {/* Hero Content - Left Aligned */}
               <div className="space-y-12">
@@ -79,7 +101,7 @@ export default function Home() {
                   <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold text-white leading-tight tracking-tight">
                     <TextType 
                       text={["Prove Your Fitness,\nClaim Your Rewards"]}
-                      typingSpeed={75}
+                      typingSpeed={85}
                       pauseDuration={1500}
                       showCursor={true}
                       cursorCharacter="|"
@@ -107,44 +129,6 @@ export default function Home() {
                 {/* Action Buttons */}
                 <div className="pt-8">
                   <ConnectButton />
-                </div>
-
-                {/* Stats Section */}
-                <div className="pt-20">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl">
-                    <div>
-                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        $5.1M
-                      </div>
-                      <div className="text-sm text-white/60 uppercase tracking-wider">
-                        Assets Secured
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        100K+
-                      </div>
-                      <div className="text-sm text-white/60 uppercase tracking-wider">
-                        Active Users
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        2.5K <span className="text-gradient-pink">STEP</span>
-                      </div>
-                      <div className="text-sm text-white/60 uppercase tracking-wider">
-                        Tokens Earned
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        24/7
-                      </div>
-                      <div className="text-sm text-white/60 uppercase tracking-wider">
-                        Support
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
