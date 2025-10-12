@@ -8,6 +8,7 @@ import { AchievementsGrid } from "../components/ui/Achievements";
 import { Leaderboard } from "../components/ui/Leaderboard";
 import { ProofModal } from "../components/ui/ProofModal";
 import { Footer } from "../components/ui/Footer";
+import TextType from "../components/ui/TextType";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -76,16 +77,21 @@ export default function Home() {
                 {/* Main Title */}
                 <div className="space-y-6">
                   <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold text-white leading-tight tracking-tight">
-                    Prove Your Fitness,
-                    <br />
-                    Claim Your{" "}
-                    <span className="text-gradient-pink">Rewards</span>
+                    <TextType 
+                      text={["Prove Your Fitness,\nClaim Your Rewards"]}
+                      typingSpeed={75}
+                      pauseDuration={1500}
+                      showCursor={true}
+                      cursorCharacter="|"
+                      as="span"
+                      loop={false}
+                    />
                   </h1>
 
                   <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-white/90 leading-relaxed">
-                    with Secure Tools at Your{" "}
+                    No Data Leaks, Only {" "}
                     <span className="text-gradient-pink font-semibold">
-                      Fingertips
+                      Healthy Gains.
                     </span>
                   </h2>
                 </div>
@@ -93,11 +99,8 @@ export default function Home() {
                 {/* Subtitle */}
                 <div className="max-w-2xl">
                   <p className="text-lg md:text-xl text-white/80 leading-relaxed font-light">
-                    <span className="text-white font-semibold">
-                      No Data Leaks, Only Healthy Gains.
-                    </span>{" "}
-                    Empower your fitness journey with cutting-edge tools, smart
-                    investment options and knowledge from trusted experts.
+
+                    Sync your steps, verify, and earn StepCoin while unlocking medals and achievements. Get fit, join challenges, and win real rewards for activity.
                   </p>
                 </div>
 
