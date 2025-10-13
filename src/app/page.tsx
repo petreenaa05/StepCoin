@@ -289,6 +289,14 @@ export default function Home() {
       <ProofModal
         isOpen={isProofModalOpen}
         onClose={() => setIsProofModalOpen(false)}
+        onProofSuccess={(stepCount, reward) => {
+          // Update step count and StepCoins from the verified proof
+          setStepCount(stepCount);
+          setStepCoins(prev => prev + reward.stepCoins);
+          setTotalSteps(prev => prev + stepCount);
+          
+          console.log('✅ Updated stats from proof:', { stepCount, reward });
+        }}
       />
 
       {/* Footer */}

@@ -1,40 +1,94 @@
+import { useState } from 'react';
+import { ReclaimProofGenerator } from './ReclaimProofGenerator';
+
 interface ProofModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onProofSuccess?: (stepCount: number, reward: { stepCoins: number; multiplier: number }) => void;
 }
 
-export function ProofModal({ isOpen, onClose }: ProofModalProps) {
+export function ProofModal({ isOpen, onClose, onProofSuccess }: ProofModalProps) {
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [proofResult, setProofResult] = useState<{
+    stepCount: number;
+    reward: { stepCoins: number; multiplier: number };
+  } | null>(null);
+
   if (!isOpen) return null;
+
+  const handleProofComplete = (stepCount: number, reward: { stepCoins: number; multiplier: number }) => {
+    setProofResult({ stepCount, reward });
+    setShowSuccess(true);
+    
+    // Notify parent component
+    if (onProofSuccess) {
+      onProofSuccess(stepCount, reward);
+    }
+    
+    // Auto-close after showing success
+    setTimeout(() => {
+      handleClose();
+    }, 3000);
+  };
+
+  const handleClose = () => {
+    setShowSuccess(false);
+    setProofResult(null);
+    onClose();
+  };
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-      onClick={onClose}
+      className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+      onClick={handleClose}
     >
       <div
-        className="bg-gray-900 border border-pink-500/20 rounded-lg p-6 max-w-md w-full mx-4"
+        className="backdrop-blur-lg rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto border"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: 'var(--surface-card)',
+          borderColor: 'var(--surface-border)',
+        }}
       >
-        <div className="text-center space-y-4">
-          <h3 className="text-xl font-bold text-white">
-            Generate Fitness Proof
-          </h3>
-          <p className="text-gray-400">
-            Generate a zero-knowledge proof of your fitness activities to earn
-            STEP tokens.
-          </p>
-          <div className="space-y-4">
-            <button className="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-              Connect Fitness App
-            </button>
-            <button
-              onClick={onClose}
-              className="w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
+        {showSuccess && proofResult ? (
+          // Success State
+          <div className="text-center space-y-6">
+            <div className="text-6xl">🎉</div>
+            <h3 className="text-2xl font-bold text-white font-mono">
+              Proof Verified Successfully!
+            </h3>
+            <div className="backdrop-blur-lg rounded-2xl p-6 border" style={{
+              backgroundColor: 'var(--surface-card)',
+              borderColor: 'var(--surface-border)',
+            }}>
+              <div className="space-y-3">
+                <p className="text-lg text-white font-mono">
+                  Steps Verified: <span className="font-bold" style={{ color: 'var(--accent-pink)' }}>
+                    {new Intl.NumberFormat().format(proofResult.stepCount)}
+                  </span>
+                </p>
+                <p className="text-lg text-white font-mono">
+                  StepCoins Earned: <span className="font-bold" style={{ color: 'var(--accent-pink)' }}>
+                    {proofResult.reward.stepCoins} SC
+                  </span>
+                </p>
+                <p className="text-sm font-mono" style={{ color: 'var(--text-secondary)' }}>
+                  Multiplier: {proofResult.reward.multiplier}x
+                </p>
+              </div>
+            </div>
+            <p className="text-sm font-mono" style={{ color: 'var(--text-secondary)' }}>
+              🔒 Your fitness data was verified using zero-knowledge proofs
+            </p>
           </div>
-        </div>
+        ) : (
+          // Proof Generation State
+          <ReclaimProofGenerator
+            onProofComplete={handleProofComplete}
+            onClose={handleClose}
+          />
+        )}
       </div>
     </div>
   );
