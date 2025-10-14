@@ -25,12 +25,12 @@
     1.001 85%,
     1
   );
-  
+
   /* StepCoin brand colors for particles */
-  --color-1: #F70670;
-  --color-2: #FF6EC7;
-  --color-3: #E91E63;
-  --color-4: #C2185B;
+  --color-1: #f70670;
+  --color-2: #ff6ec7;
+  --color-3: #e91e63;
+  --color-4: #c2185b;
 }
 
 .gooey-nav-container {
@@ -59,10 +59,7 @@
   border-radius: 100vw;
   position: relative;
   cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 0 0.5px 1.5px transparent;
   color: white;
 }
@@ -72,7 +69,7 @@
   padding: 0.6em 1em;
   text-decoration: none;
   color: inherit;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-weight: 500;
 }
 
@@ -81,11 +78,11 @@
 }
 
 .gooey-nav-container nav ul li::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: 10px;
-  background: #F70670;
+  background: #f70670;
   opacity: 0;
   transform: scale(0);
   transition: all 0.3s ease;
@@ -118,7 +115,7 @@
 .gooey-nav-container .effect.text {
   color: white;
   transition: color 0.3s ease;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-weight: 500;
 }
 
@@ -133,7 +130,7 @@
 }
 
 .gooey-nav-container .effect.filter::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -75px;
   z-index: -2;
@@ -141,10 +138,10 @@
 }
 
 .gooey-nav-container .effect.filter::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: #F70670;
+  background: #f70670;
   transform: scale(0);
   opacity: 0;
   z-index: -1;
@@ -188,24 +185,28 @@
 
 @keyframes particle {
   0% {
-    transform: rotate(0deg) translate(calc(var(--start-x)), calc(var(--start-y)));
+    transform: rotate(0deg)
+      translate(calc(var(--start-x)), calc(var(--start-y)));
     opacity: 1;
     animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
   }
 
   70% {
-    transform: rotate(calc(var(--rotate) * 0.5)) translate(calc(var(--end-x) * 1.2), calc(var(--end-y) * 1.2));
+    transform: rotate(calc(var(--rotate) * 0.5))
+      translate(calc(var(--end-x) * 1.2), calc(var(--end-y) * 1.2));
     opacity: 1;
     animation-timing-function: ease;
   }
 
   85% {
-    transform: rotate(calc(var(--rotate) * 0.66)) translate(calc(var(--end-x)), calc(var(--end-y)));
+    transform: rotate(calc(var(--rotate) * 0.66))
+      translate(calc(var(--end-x)), calc(var(--end-y)));
     opacity: 1;
   }
 
   100% {
-    transform: rotate(calc(var(--rotate) * 1.2)) translate(calc(var(--end-x) * 0.5), calc(var(--end-y) * 0.5));
+    transform: rotate(calc(var(--rotate) * 1.2))
+      translate(calc(var(--end-x) * 0.5), calc(var(--end-y) * 0.5));
     opacity: 1;
   }
 }

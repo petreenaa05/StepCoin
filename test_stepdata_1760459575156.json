@@ -1,0 +1,19 @@
+{
+  "userId": "test_user_123",
+  "walletAddress": "0x1234567890abcdef1234567890abcdef12345678",
+  "timestamp": 1760459575154,
+  "date": "2025-10-14",
+  "stepData": {
+    "stepCount": 12000,
+    "calories": 480,
+    "distance": 9.6,
+    "activeMinutes": 100
+  },
+  "provider": "google-fit-steps",
+  "reclaimProofId": "test_proof_1760459575155",
+  "verified": true,
+  "metadata": {
+    "appVersion": "1.0.0",
+    "dataQuality": "high"
+  }
+}

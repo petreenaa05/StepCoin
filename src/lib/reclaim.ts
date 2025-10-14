@@ -1,6 +1,7 @@
 /**
  * Reclaim Protocol Integration Utilities
  * Handles the frontend integration with Reclaim Protocol for fitness data verification
+ * Enhanced with Lighthouse storage for decentralized fitness data storage
  */
 
 export interface ReclaimProofRequest {
@@ -19,6 +20,8 @@ export interface ReclaimProofResponse {
   };
   error?: string;
   proofId?: string;
+  lighthouseCid?: string; // IPFS CID for stored fitness data
+  lighthouseUrl?: string; // Lighthouse gateway URL
 }
 
 export interface FitnessProvider {
@@ -35,37 +38,37 @@ export interface FitnessProvider {
  */
 export const SUPPORTED_FITNESS_PROVIDERS: FitnessProvider[] = [
   {
-    id: 'google-fit-steps',
-    name: 'Google Fit',
-    description: 'Verify your daily steps from Google Fit',
-    icon: '🔍',
-    logo: 'https://developers.google.com/static/fit/images/google-fit-logo.svg',
-    supported: true
+    id: "google-fit-steps",
+    name: "Google Fit",
+    description: "Verify your daily steps from Google Fit",
+    icon: "🔍",
+    logo: "https://developers.google.com/static/fit/images/google-fit-logo.svg",
+    supported: true,
   },
   {
-    id: 'apple-health-steps',
-    name: 'Apple Health',
-    description: 'Verify your daily steps from Apple Health',
-    icon: '🍎',
-    logo: 'https://developer.apple.com/assets/elements/icons/healthkit/healthkit-96x96_2x.png',
-    supported: true
+    id: "apple-health-steps",
+    name: "Apple Health",
+    description: "Verify your daily steps from Apple Health",
+    icon: "🍎",
+    logo: "https://developer.apple.com/assets/elements/icons/healthkit/healthkit-96x96_2x.png",
+    supported: true,
   },
   {
-    id: 'fitbit-steps',
-    name: 'Fitbit',
-    description: 'Verify your daily steps from Fitbit',
-    icon: '⌚',
-    logo: 'https://logo.clearbit.com/fitbit.com',
-    supported: true
+    id: "fitbit-steps",
+    name: "Fitbit",
+    description: "Verify your daily steps from Fitbit",
+    icon: "⌚",
+    logo: "https://logo.clearbit.com/fitbit.com",
+    supported: true,
   },
   {
-    id: 'samsung-health-steps',
-    name: 'Samsung Health',
-    description: 'Verify your daily steps from Samsung Health',
-    icon: '📱',
-    logo: 'https://img.icons8.com/color/48/samsung-health.png',
-    supported: false // Not yet implemented
-  }
+    id: "samsung-health-steps",
+    name: "Samsung Health",
+    description: "Verify your daily steps from Samsung Health",
+    icon: "📱",
+    logo: "https://img.icons8.com/color/48/samsung-health.png",
+    supported: false, // Not yet implemented
+  },
 ];
 
 /**
@@ -73,44 +76,45 @@ export const SUPPORTED_FITNESS_PROVIDERS: FitnessProvider[] = [
  * This would typically open the Reclaim widget or redirect to Reclaim's proof generation flow
  */
 export async function initiateReclaimProof(
-  providerId: string, 
+  providerId: string,
   userWallet: string
 ): Promise<{ success: boolean; redirectUrl?: string; error?: string }> {
   try {
     // Get Reclaim configuration
-    const configResponse = await fetch('/api/reclaim-config');
+    const configResponse = await fetch("/api/reclaim-config");
     if (!configResponse.ok) {
-      throw new Error('Failed to get Reclaim configuration');
+      throw new Error("Failed to get Reclaim configuration");
     }
-    
+
     const config = await configResponse.json();
-    
+
     // In a real implementation, this would:
     // 1. Initialize the Reclaim SDK
     // 2. Create a proof request with the specified provider
     // 3. Return a URL or open the Reclaim widget
-    
-    console.log('🚀 Initiating Reclaim proof for provider:', providerId);
-    console.log('📋 Config:', config);
-    
+
+    console.log("🚀 Initiating Reclaim proof for provider:", providerId);
+    console.log("📋 Config:", config);
+
     // TODO: Replace with actual Reclaim SDK integration
     // const reclaimApp = await Reclaim.init(config.applicationId);
     // const request = reclaimApp.buildHttpsRequest(providerId);
     // const redirectUrl = await request.generateProofUrl();
-    
+
     // For now, return a mock response
-    const mockRedirectUrl = `https://reclaim.example.com/prove?provider=${providerId}&callback=${encodeURIComponent(config.callbackUrl)}&wallet=${userWallet}`;
-    
+    const mockRedirectUrl = `https://reclaim.example.com/prove?provider=${providerId}&callback=${encodeURIComponent(
+      config.callbackUrl
+    )}&wallet=${userWallet}`;
+
     return {
       success: true,
-      redirectUrl: mockRedirectUrl
+      redirectUrl: mockRedirectUrl,
     };
-    
   } catch (error) {
-    console.error('❌ Error initiating Reclaim proof:', error);
+    console.error("❌ Error initiating Reclaim proof:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -119,24 +123,25 @@ export async function initiateReclaimProof(
  * Check if a proof has been submitted and processed
  * In a real implementation, this would query your backend for proof status
  */
-export async function checkProofStatus(proofId: string): Promise<ReclaimProofResponse> {
+export async function checkProofStatus(
+  proofId: string
+): Promise<ReclaimProofResponse> {
   try {
     // TODO: Implement actual proof status checking
     // This would typically query your backend database for proof status
-    
-    console.log('🔍 Checking proof status:', proofId);
-    
+
+    console.log("🔍 Checking proof status:", proofId);
+
     // Mock response for development
     return {
       success: false,
-      error: 'Proof status checking not yet implemented'
+      error: "Proof status checking not yet implemented",
     };
-    
   } catch (error) {
-    console.error('❌ Error checking proof status:', error);
+    console.error("❌ Error checking proof status:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -145,7 +150,10 @@ export async function checkProofStatus(proofId: string): Promise<ReclaimProofRes
  * Calculate potential StepCoin rewards based on step count
  * This mirrors the calculation logic in the backend
  */
-export function calculatePotentialReward(stepCount: number): { stepCoins: number; multiplier: number } {
+export function calculatePotentialReward(stepCount: number): {
+  stepCoins: number;
+  multiplier: number;
+} {
   let baseReward = stepCount / 100;
   let multiplier = 1;
 
@@ -175,6 +183,63 @@ export function formatStepCount(steps: number): string {
  * Get user-friendly provider name
  */
 export function getProviderDisplayName(providerId: string): string {
-  const provider = SUPPORTED_FITNESS_PROVIDERS.find(p => p.id === providerId);
+  const provider = SUPPORTED_FITNESS_PROVIDERS.find((p) => p.id === providerId);
   return provider?.name || providerId;
+}
+
+/**
+ * Store verified fitness data on Lighthouse after successful Reclaim proof
+ */
+export async function storeVerifiedFitnessData(
+  stepCount: number,
+  providerId: string,
+  walletAddress: string,
+  reclaimProofId: string
+): Promise<{ cid?: string; url?: string; error?: string }> {
+  try {
+    console.log("💾 Storing verified fitness data on Lighthouse...", {
+      stepCount,
+      provider: providerId,
+      proofId: reclaimProofId,
+    });
+
+    const response = await fetch("/api/lighthouse", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "store_fitness_data",
+        data: {
+          walletAddress,
+          stepCount,
+          provider: providerId,
+          reclaimProofId,
+        },
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log("✅ Fitness data stored on Lighthouse:", {
+        cid: result.cid,
+        url: result.url,
+      });
+
+      return {
+        cid: result.cid,
+        url: result.url,
+      };
+    } else {
+      console.error("❌ Failed to store fitness data:", result.error);
+      return { error: result.error };
+    }
+  } catch (error) {
+    console.error("❌ Error storing fitness data on Lighthouse:", error);
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to store fitness data",
+    };
+  }
 }

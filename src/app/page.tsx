@@ -11,6 +11,7 @@ import { Footer } from "../components/ui/Footer";
 import TextType from "../components/ui/TextType";
 import LiquidEther from "../components/ui/LiquidEther";
 import GooeyNav from "../components/ui/GooeyNav";
+import { FitnessHistory } from "../components/ui/FitnessHistory";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -276,6 +277,9 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+
+              {/* Fitness History Section */}
+              <FitnessHistory walletAddress={address} />
             </div>
           )}
 
