@@ -48,6 +48,17 @@ export async function POST(
       );
     }
 
+    // Verify the proof using Reclaim SDK
+    const isProofValid = await Reclaim.verifyProof(proof);
+
+    if (!isProofValid) {
+      console.error("❌ Proof verification failed");
+      return NextResponse.json(
+        { ok: false, error: "Invalid proof signature" },
+        { status: 400 }
+      );
+    }
+
     console.log("🔍 Verifying proof from provider:", proof.claimData.provider);
 
     // Verify the signed proof using Reclaim SDK

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ReclaimProofGenerator } from "./ReclaimProofGenerator";
+import { MultiProviderFitness } from "./MultiProviderFitness";
 
 interface ProofModalProps {
   isOpen: boolean;
@@ -23,22 +23,30 @@ export function ProofModal({
 
   if (!isOpen) return null;
 
-  const handleProofComplete = (
-    stepCount: number,
-    reward: { stepCoins: number; multiplier: number }
-  ) => {
-    setProofResult({ stepCount, reward });
+  const handleStepsReceived = (steps: number, provider: string, data: any) => {
+    // Calculate reward based on steps
+    const reward = {
+      stepCoins: Math.floor(steps / 100), // 1 StepCoin per 100 steps
+      multiplier: steps > 10000 ? 1.5 : 1.0, // Bonus for 10k+ steps
+    };
+
+    setProofResult({ stepCount: steps, reward });
     setShowSuccess(true);
 
     // Notify parent component
     if (onProofSuccess) {
-      onProofSuccess(stepCount, reward);
+      onProofSuccess(steps, reward);
     }
+
+    console.log(`🎉 Received ${steps} steps from ${provider}`);
+    console.log(
+      `💰 Calculated reward: ${reward.stepCoins} StepCoins (${reward.multiplier}x multiplier)`
+    );
 
     // Auto-close after showing success
     setTimeout(() => {
       handleClose();
-    }, 3000);
+    }, 4000);
   };
 
   const handleClose = () => {
@@ -110,9 +118,9 @@ export function ProofModal({
             </p>
           </div>
         ) : (
-          // Proof Generation State
-          <ReclaimProofGenerator
-            onProofComplete={handleProofComplete}
+          // Multi-Provider Fitness Integration
+          <MultiProviderFitness
+            onStepsReceived={handleStepsReceived}
             onClose={handleClose}
           />
         )}

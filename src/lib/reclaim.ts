@@ -72,46 +72,57 @@ export const SUPPORTED_FITNESS_PROVIDERS: FitnessProvider[] = [
 ];
 
 /**
- * Initiate Reclaim Protocol proof generation
- * This would typically open the Reclaim widget or redirect to Reclaim's proof generation flow
+ * Initiate real fitness proof generation using actual APIs
  */
 export async function initiateReclaimProof(
   providerId: string,
   userWallet: string
-): Promise<{ success: boolean; redirectUrl?: string; error?: string }> {
+): Promise<{
+  success: boolean;
+  redirectUrl?: string;
+  error?: string;
+  requestUrl?: string;
+}> {
   try {
-    // Get Reclaim configuration
-    const configResponse = await fetch("/api/reclaim-config");
-    if (!configResponse.ok) {
-      throw new Error("Failed to get Reclaim configuration");
+    console.log("🚀 Initiating real fitness proof for provider:", providerId);
+
+    if (providerId.includes("google-fit")) {
+      // Import the real Google Fit integration
+      const { generateRealGoogleFitProof } = await import(
+        "./realFitnessIntegration"
+      );
+
+      const result = await generateRealGoogleFitProof(userWallet);
+
+      if (result.success && result.fitnessData && result.proof) {
+        // Store the proof data for the modal to access
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem(
+            "latest_fitness_proof",
+            JSON.stringify({
+              fitnessData: result.fitnessData,
+              proof: result.proof,
+              providerId,
+            })
+          );
+        }
+
+        return {
+          success: true,
+          requestUrl: `#real-google-fit-proof-${Date.now()}`,
+          redirectUrl: `#real-google-fit-proof-${Date.now()}`,
+        };
+      } else {
+        throw new Error(result.error || "Failed to generate Google Fit proof");
+      }
+    } else {
+      // For other providers, show a message that real integration is needed
+      throw new Error(
+        `Real integration for ${providerId} is not yet implemented. Please use Google Fit for now.`
+      );
     }
-
-    const config = await configResponse.json();
-
-    // In a real implementation, this would:
-    // 1. Initialize the Reclaim SDK
-    // 2. Create a proof request with the specified provider
-    // 3. Return a URL or open the Reclaim widget
-
-    console.log("🚀 Initiating Reclaim proof for provider:", providerId);
-    console.log("📋 Config:", config);
-
-    // TODO: Replace with actual Reclaim SDK integration
-    // const reclaimApp = await Reclaim.init(config.applicationId);
-    // const request = reclaimApp.buildHttpsRequest(providerId);
-    // const redirectUrl = await request.generateProofUrl();
-
-    // For now, return a mock response
-    const mockRedirectUrl = `https://reclaim.example.com/prove?provider=${providerId}&callback=${encodeURIComponent(
-      config.callbackUrl
-    )}&wallet=${userWallet}`;
-
-    return {
-      success: true,
-      redirectUrl: mockRedirectUrl,
-    };
   } catch (error) {
-    console.error("❌ Error initiating Reclaim proof:", error);
+    console.error("❌ Error initiating real fitness proof:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -121,27 +132,142 @@ export async function initiateReclaimProof(
 
 /**
  * Check if a proof has been submitted and processed
- * In a real implementation, this would query your backend for proof status
+ * Queries the backend for proof verification status
  */
 export async function checkProofStatus(
   proofId: string
 ): Promise<ReclaimProofResponse> {
   try {
-    // TODO: Implement actual proof status checking
-    // This would typically query your backend database for proof status
-
     console.log("🔍 Checking proof status:", proofId);
 
-    // Mock response for development
+    // Query the backend for proof status
+    const statusResponse = await fetch(
+      `/api/reclaim-callback/status?proofId=${proofId}`
+    );
+
+    if (!statusResponse.ok) {
+      throw new Error(
+        `HTTP ${statusResponse.status}: ${statusResponse.statusText}`
+      );
+    }
+
+    const statusData = await statusResponse.json();
+
     return {
-      success: false,
-      error: "Proof status checking not yet implemented",
+      success: statusData.verified || false,
+      stepCount: statusData.stepCount,
+      reward: statusData.reward,
+      proofId: proofId,
+      lighthouseCid: statusData.lighthouseCid,
+      lighthouseUrl: statusData.lighthouseUrl,
+      error: statusData.error,
     };
   } catch (error) {
     console.error("❌ Error checking proof status:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Verify a Reclaim proof using the Reclaim SDK
+ */
+export async function verifyReclaimProof(
+  proof: any,
+  providerId: string
+): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    console.log("🔐 Verifying Reclaim proof for provider:", providerId);
+
+    // For development, simulate proof verification
+    // Import Reclaim SDK dynamically
+    const reclaimModule = await import("@reclaimprotocol/js-sdk");
+
+    // Use the correct import method
+    const isValid = await reclaimModule.verifyProof(proof);
+
+    if (!isValid) {
+      return {
+        success: false,
+        error: "Invalid proof signature or data",
+      };
+    }
+
+    // Extract fitness data from the verified proof
+    const extractedData = extractFitnessDataFromProof(proof, providerId);
+
+    return {
+      success: true,
+      data: extractedData,
+    };
+  } catch (error) {
+    console.error("❌ Error verifying Reclaim proof:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Extract fitness data from a verified Reclaim proof
+ */
+function extractFitnessDataFromProof(proof: any, providerId: string): any {
+  try {
+    // Parse the claim data from the proof
+    const claimData = JSON.parse(proof.claimData);
+
+    if (providerId.includes("google-fit")) {
+      return {
+        steps: claimData.steps || claimData.value || 0,
+        calories: claimData.calories || 0,
+        distance: claimData.distance || 0,
+        timestamp: claimData.timestamp || Date.now(),
+        provider: "google-fit",
+      };
+    } else if (providerId.includes("apple-health")) {
+      return {
+        steps: claimData.stepCount || claimData.count || 0,
+        calories: claimData.activeEnergyBurned || 0,
+        distance: claimData.distanceWalkingRunning || 0,
+        timestamp: claimData.endDate || Date.now(),
+        provider: "apple-health",
+      };
+    } else if (providerId.includes("fitbit")) {
+      return {
+        steps:
+          claimData.steps || claimData["activities-steps"]?.[0]?.value || 0,
+        calories:
+          claimData.calories ||
+          claimData["activities-calories"]?.[0]?.value ||
+          0,
+        distance:
+          claimData.distance ||
+          claimData["activities-distance"]?.[0]?.value ||
+          0,
+        timestamp: claimData.dateTime || Date.now(),
+        provider: "fitbit",
+      };
+    }
+
+    // Default parsing for unknown providers
+    return {
+      steps: claimData.steps || 0,
+      calories: claimData.calories || 0,
+      distance: claimData.distance || 0,
+      timestamp: claimData.timestamp || Date.now(),
+      provider: providerId,
+    };
+  } catch (error) {
+    console.error("❌ Error extracting fitness data from proof:", error);
+    return {
+      steps: 0,
+      calories: 0,
+      distance: 0,
+      timestamp: Date.now(),
+      provider: providerId,
     };
   }
 }
@@ -242,4 +368,130 @@ export async function storeVerifiedFitnessData(
         error instanceof Error ? error.message : "Failed to store fitness data",
     };
   }
+}
+
+/**
+ * Complete proof processing workflow
+ * Handles the full cycle from proof verification to reward distribution
+ */
+export async function processReclaimProof(
+  proof: any,
+  providerId: string,
+  userWallet: string
+): Promise<ReclaimProofResponse> {
+  try {
+    console.log("🔄 Processing complete Reclaim proof workflow...");
+
+    // Step 1: Verify the Reclaim proof
+    const verificationResult = await verifyReclaimProof(proof, providerId);
+    if (!verificationResult.success) {
+      return {
+        success: false,
+        error: `Proof verification failed: ${verificationResult.error}`,
+      };
+    }
+
+    const fitnessData = verificationResult.data;
+    console.log("✅ Fitness data extracted:", fitnessData);
+
+    // Step 2: Store data on Lighthouse
+    const storageResult = await storeVerifiedFitnessData(
+      fitnessData.steps,
+      providerId,
+      userWallet,
+      proof.identifier || `proof-${Date.now()}`
+    );
+
+    if (storageResult.error) {
+      console.warn(
+        "⚠️ Storage failed but continuing with rewards:",
+        storageResult.error
+      );
+    }
+
+    // Step 3: Calculate rewards
+    const reward = calculatePotentialReward(fitnessData.steps);
+
+    // Step 4: Submit to smart contract for verification and minting
+    try {
+      const contractResult = await submitToSmartContract({
+        user: userWallet,
+        provider: getProviderTypeId(providerId),
+        steps: fitnessData.steps,
+        calories: fitnessData.calories,
+        distance: fitnessData.distance,
+        ipfsHash: storageResult.cid || "",
+        proof: proof,
+      });
+
+      if (!contractResult.success) {
+        console.warn(
+          "⚠️ Smart contract submission failed:",
+          contractResult.error
+        );
+      }
+    } catch (contractError) {
+      console.warn("⚠️ Smart contract not available, skipping:", contractError);
+    }
+
+    return {
+      success: true,
+      stepCount: fitnessData.steps,
+      reward,
+      proofId: proof.identifier,
+      lighthouseCid: storageResult.cid,
+      lighthouseUrl: storageResult.url,
+    };
+  } catch (error) {
+    console.error("❌ Error processing Reclaim proof:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+/**
+ * Submit verified fitness data to smart contract
+ */
+async function submitToSmartContract(data: {
+  user: string;
+  provider: number;
+  steps: number;
+  calories: number;
+  distance: number;
+  ipfsHash: string;
+  proof: any;
+}): Promise<{ success: boolean; error?: string; txHash?: string }> {
+  try {
+    // This would integrate with the smart contract deployment
+    // For now, we'll call a backend API that handles contract interaction
+    const response = await fetch("/api/smart-contract/verify-proof", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Contract submission failed",
+    };
+  }
+}
+
+/**
+ * Get numeric provider type for smart contract
+ */
+function getProviderTypeId(providerId: string): number {
+  if (providerId.includes("google-fit")) return 0;
+  if (providerId.includes("apple-health")) return 1;
+  if (providerId.includes("fitbit")) return 2;
+  if (providerId.includes("strava")) return 3;
+  return 0; // Default to Google Fit
 }

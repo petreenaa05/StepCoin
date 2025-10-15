@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import {
-  SUPPORTED_FITNESS_PROVIDERS,
-  initiateReclaimProof,
-  calculatePotentialReward,
-  formatStepCount,
-  storeVerifiedFitnessData,
-  FitnessProvider,
-} from "../../lib/reclaim";
+import { useStravaIntegration } from "../../lib/stravaIntegration";
 
 interface ReclaimProofGeneratorProps {
   onProofComplete?: (
@@ -22,74 +15,98 @@ export const ReclaimProofGenerator: React.FC<ReclaimProofGeneratorProps> = ({
   onClose,
 }) => {
   const { address } = useAccount();
-  const [selectedProvider, setSelectedProvider] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [estimatedSteps, setEstimatedSteps] = useState(0);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [fitnessData, setFitnessData] = useState<any>(null);
   const [error, setError] = useState<string>("");
 
-  const handleGenerateProof = async () => {
-    if (!selectedProvider || !address) {
-      setError("Please select a provider and connect your wallet");
+  const stravaIntegration = useStravaIntegration();
+
+  const handleConnectStrava = async () => {
+    if (!address) {
+      setError("Please connect your wallet first");
       return;
     }
 
-    setIsGenerating(true);
+    setIsConnecting(true);
     setError("");
 
     try {
-      console.log("🎯 Generating proof for provider:", selectedProvider);
+      console.log("🎯 Connecting to Strava...");
 
-      const result = await initiateReclaimProof(selectedProvider, address);
+      const proofData = await stravaIntegration.connectAndProve();
 
-      if (result.success && result.redirectUrl) {
-        // In a real implementation, this would open the Reclaim widget
-        console.log("🌐 Would redirect to:", result.redirectUrl);
+      if (result.success) {
+        console.log("✅ Real fitness proof initiated successfully");
 
-        // For demo purposes, simulate a successful proof
-        setTimeout(async () => {
-          const mockStepCount = Math.floor(Math.random() * 15000) + 5000; // 5k-20k steps
-          const reward = calculatePotentialReward(mockStepCount);
-          const mockProofId = `proof_${Date.now()}_${Math.random()
-            .toString(36)
-            .substr(2, 9)}`;
+        // Check if we have proof data in session storage
+        const proofData = window.sessionStorage.getItem("latest_fitness_proof");
+        if (proofData) {
+          const { fitnessData, proof } = JSON.parse(proofData);
 
-          console.log("✅ Mock proof completed:", {
-            stepCount: mockStepCount,
-            reward,
-          });
+          console.log("📊 Real fitness data retrieved:", fitnessData);
 
-          // Store verified fitness data on Lighthouse
-          const storageResult = await storeVerifiedFitnessData(
-            mockStepCount,
-            selectedProvider,
-            address,
-            mockProofId
+          // Import and use the real proof verification hook
+          const { useProofVerification } = await import(
+            "../../lib/realFitnessIntegration"
           );
 
-          if (storageResult.cid) {
-            console.log("💾 Fitness data stored on Lighthouse:", {
-              cid: storageResult.cid,
-              url: storageResult.url,
+          // Submit to smart contract
+          try {
+            // Call the smart contract directly
+            const response = await fetch("/api/smart-contract/verify-proof", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user: address,
+                provider: fitnessData.provider,
+                steps: fitnessData.steps,
+                calories: fitnessData.calories,
+                distance: fitnessData.distance,
+                ipfsHash: fitnessData.ipfsHash || "",
+                proof: proof,
+              }),
             });
-          } else if (storageResult.error) {
-            console.warn(
-              "⚠️ Failed to store on Lighthouse:",
-              storageResult.error
-            );
+
+            const contractResult = await response.json();
+
+            if (contractResult.success) {
+              console.log("🎉 Smart contract verification successful!");
+              console.log(
+                "💰 Rewards distributed:",
+                contractResult.rewardsDistributed
+              );
+
+              const reward = calculatePotentialReward(fitnessData.steps);
+
+              if (onProofComplete) {
+                onProofComplete(fitnessData.steps, reward);
+              }
+            } else {
+              throw new Error(
+                contractResult.error || "Smart contract verification failed"
+              );
+            }
+          } catch (contractError) {
+            console.error("❌ Smart contract error:", contractError);
+            setError("Smart contract verification failed. Please try again.");
           }
 
-          if (onProofComplete) {
-            onProofComplete(mockStepCount, reward);
-          }
-
-          setIsGenerating(false);
-        }, 3000);
+          // Clean up session storage
+          window.sessionStorage.removeItem("latest_fitness_proof");
+        } else {
+          throw new Error("No fitness proof data found");
+        }
       } else {
         throw new Error(result.error || "Failed to generate proof");
       }
     } catch (err) {
-      console.error("❌ Proof generation error:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate proof");
+      console.error("❌ Real proof generation error:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to generate real proof"
+      );
+    } finally {
       setIsGenerating(false);
     }
   };

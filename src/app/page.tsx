@@ -12,6 +12,7 @@ import TextType from "../components/ui/TextType";
 import LiquidEther from "../components/ui/LiquidEther";
 import GooeyNav from "../components/ui/GooeyNav";
 import { FitnessHistory } from "../components/ui/FitnessHistory";
+import ContractTest from "../components/ContractTest";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -52,7 +53,7 @@ export default function Home() {
             StepCoin
           </h1>
         </div>
-        
+
         {/* Floating Gooey Navigation - Only show when connected */}
         {isConnected && (
           <div className="absolute left-1/2 transform -translate-x-1/2">
@@ -61,14 +62,17 @@ export default function Home() {
               items={[
                 { label: "📊 Dashboard", href: "#dashboard" },
                 { label: "🏆 Achievements", href: "#achievements" },
-                { label: "🥇 Leaderboard", href: "#leaderboard" }
+                { label: "🥇 Leaderboard", href: "#leaderboard" },
               ]}
               particleCount={12}
               particleDistances={[60, 8]}
               particleR={80}
               initialActiveIndex={
-                activeTab === "dashboard" ? 0 :
-                activeTab === "achievements" ? 1 : 2
+                activeTab === "dashboard"
+                  ? 0
+                  : activeTab === "achievements"
+                  ? 1
+                  : 2
               }
               animationTime={500}
               timeVariance={250}
@@ -80,7 +84,7 @@ export default function Home() {
             />
           </div>
         )}
-        
+
         <ConnectButton />
       </header>
 
@@ -181,107 +185,109 @@ export default function Home() {
 
           {/* Main Content Area */}
           <div className="min-h-screen">
-
             {/* Dashboard Content */}
             {activeTab === "dashboard" && (
-            <div className="space-y-8">
-              {/* Stats Cards */}
-              <div className="grid md:grid-cols-4 gap-6">
-                <StatCard
-                  title="Steps Today"
-                  value={stepCount}
-                  subtitle="Today's progress"
-                  icon={
-                    <svg
-                      className="w-5 h-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+              <div className="space-y-8">
+                {/* Stats Cards */}
+                <div className="grid md:grid-cols-4 gap-6">
+                  <StatCard
+                    title="Steps Today"
+                    value={stepCount}
+                    subtitle="Today's progress"
+                    icon={
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                        />
+                      </svg>
+                    }
+                    color="bg-pink-500"
+                    trend={{ value: "+12.5%", isPositive: true }}
+                  />
+
+                  <StatCard
+                    title="StepCoins"
+                    value={stepCoins.toFixed(2)}
+                    subtitle="Total earned"
+                    icon={
+                      <span className="text-white text-sm font-bold">SC</span>
+                    }
+                    color="bg-pink-600"
+                    trend={{ value: "+85.47", isPositive: true }}
+                  />
+
+                  <StatCard
+                    title="Total Steps"
+                    value={totalSteps}
+                    subtitle="All time"
+                    icon={<span className="text-white text-lg">🏃‍♂️</span>}
+                    color="bg-pink-700"
+                  />
+
+                  <StatCard
+                    title="ETH Balance"
+                    value={
+                      balance
+                        ? parseFloat(balance.formatted).toFixed(4)
+                        : "0.0000"
+                    }
+                    subtitle="Wallet balance"
+                    icon={
+                      <span className="text-white text-xs font-bold">ETH</span>
+                    }
+                    color="bg-pink-800"
+                  />
+                </div>
+
+                {/* Prove Steps Section */}
+                <div
+                  className="backdrop-blur-lg rounded-2xl p-8 border"
+                  style={{
+                    backgroundColor: "var(--surface-card)",
+                    borderColor: "var(--surface-border)",
+                  }}
+                >
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-2 font-mono">
+                      Prove Your Fitness Activity
+                    </h3>
+                    <p style={{ color: "var(--text-secondary)" }}>
+                      Generate zero-knowledge proofs of your fitness data and
+                      earn StepCoins
+                    </p>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => setIsProofModalOpen(true)}
+                      className="text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 border font-mono"
+                      style={{
+                        background: "var(--gradient-pink)",
+                        borderColor: "var(--accent-pink)",
+                        boxShadow: "0 10px 25px rgba(247, 6, 112, 0.25)",
+                      }}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                      />
-                    </svg>
-                  }
-                  color="bg-pink-500"
-                  trend={{ value: "+12.5%", isPositive: true }}
-                />
-
-                <StatCard
-                  title="StepCoins"
-                  value={stepCoins.toFixed(2)}
-                  subtitle="Total earned"
-                  icon={
-                    <span className="text-white text-sm font-bold">SC</span>
-                  }
-                  color="bg-pink-600"
-                  trend={{ value: "+85.47", isPositive: true }}
-                />
-
-                <StatCard
-                  title="Total Steps"
-                  value={totalSteps}
-                  subtitle="All time"
-                  icon={<span className="text-white text-lg">🏃‍♂️</span>}
-                  color="bg-pink-700"
-                />
-
-                <StatCard
-                  title="ETH Balance"
-                  value={
-                    balance
-                      ? parseFloat(balance.formatted).toFixed(4)
-                      : "0.0000"
-                  }
-                  subtitle="Wallet balance"
-                  icon={
-                    <span className="text-white text-xs font-bold">ETH</span>
-                  }
-                  color="bg-pink-800"
-                />
-              </div>
-
-              {/* Prove Steps Section */}
-              <div
-                className="backdrop-blur-lg rounded-2xl p-8 border"
-                style={{
-                  backgroundColor: "var(--surface-card)",
-                  borderColor: "var(--surface-border)",
-                }}
-              >
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-white mb-2 font-mono">
-                    Prove Your Fitness Activity
-                  </h3>
-                  <p style={{ color: "var(--text-secondary)" }}>
-                    Generate zero-knowledge proofs of your fitness data and earn
-                    StepCoins
-                  </p>
+                      <span className="text-2xl">🔒</span>
+                      <span>Generate Fitness Proof</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setIsProofModalOpen(true)}
-                    className="text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 border font-mono"
-                    style={{
-                      background: "var(--gradient-pink)",
-                      borderColor: "var(--accent-pink)",
-                      boxShadow: "0 10px 25px rgba(247, 6, 112, 0.25)",
-                    }}
-                  >
-                    <span className="text-2xl">🔒</span>
-                    <span>Generate Fitness Proof</span>
-                  </button>
-                </div>
-              </div>
+                {/* Fitness History Section */}
+                <FitnessHistory walletAddress={address} />
 
-              {/* Fitness History Section */}
-              <FitnessHistory walletAddress={address} />
-            </div>
-          )}
+                {/* Smart Contract Test Panel */}
+                <ContractTest />
+              </div>
+            )}
 
             {activeTab === "achievements" && <AchievementsGrid />}
             {activeTab === "leaderboard" && <Leaderboard />}
@@ -296,10 +302,10 @@ export default function Home() {
         onProofSuccess={(stepCount, reward) => {
           // Update step count and StepCoins from the verified proof
           setStepCount(stepCount);
-          setStepCoins(prev => prev + reward.stepCoins);
-          setTotalSteps(prev => prev + stepCount);
-          
-          console.log('✅ Updated stats from proof:', { stepCount, reward });
+          setStepCoins((prev) => prev + reward.stepCoins);
+          setTotalSteps((prev) => prev + stepCount);
+
+          console.log("✅ Updated stats from proof:", { stepCount, reward });
         }}
       />
 
