@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LoadingPage } from "../../../components/ui/LoadingPage";
 import { SuccessPage } from "../../../components/ui/SuccessPage";
 
-function StravaCallbackContent() {
+function GoogleFitCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -34,7 +34,7 @@ function StravaCallbackContent() {
         // The callback route should handle the token exchange
         // Just redirect back to the main page with success indicator
         setTimeout(() => {
-          router.replace("/?strava_connected=true");
+          router.replace("/?googlefit_connected=true");
         }, 2000);
 
         setStatus("success");
@@ -51,7 +51,7 @@ function StravaCallbackContent() {
     return (
       <LoadingPage
         type="connecting"
-        title="Completing Strava Connection"
+        title="Completing Google Fit Connection"
         message="Finalizing your authentication and setting up your account..."
       />
     );
@@ -68,7 +68,7 @@ function StravaCallbackContent() {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => router.replace("/")}
-            className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors"
+            className="w-full py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
           >
             Try Again
           </button>
@@ -80,17 +80,17 @@ function StravaCallbackContent() {
   return (
     <SuccessPage
       type="connected"
-      title="Strava Connected Successfully!"
+      title="Google Fit Connected Successfully!"
       message="Redirecting you back to claim your step rewards..."
-      onContinue={() => router.replace("/?strava_connected=true")}
+      onContinue={() => router.replace("/?googlefit_connected=true")}
     />
   );
 }
 
-export default function StravaCallback() {
+export default function GoogleFitCallback() {
   return (
     <Suspense fallback={<LoadingPage type="connecting" title="Loading..." message="Setting up your connection..." />}>
-      <StravaCallbackContent />
+      <GoogleFitCallbackContent />
     </Suspense>
   );
 }

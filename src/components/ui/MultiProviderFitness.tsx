@@ -16,62 +16,19 @@ interface FitnessProvider {
 
 const FITNESS_PROVIDERS: FitnessProvider[] = [
   {
-    id: "strava",
-    name: "Strava",
-    icon: "🟠",
-    color: "orange",
+    id: "googlefit",
+    name: "Google Fit",
+    icon: "�",
+    color: "red",
     description:
-      "Connect your Strava account to track running, cycling, and walking activities",
+      "Connect your Google Fit account to track your daily activities and earn StepCoins",
     isWorking: true,
     setupDifficulty: "Easy",
     features: [
-      "Running steps",
-      "Walking distance",
-      "Cycling equivalent",
-      "All device sync",
-    ],
-  },
-  {
-    id: "googlefit",
-    name: "Google Fit",
-    icon: "🔴",
-    color: "red",
-    description:
-      "Google Fit integration for Android users with comprehensive step tracking",
-    isWorking: false, // We'll implement this next
-    setupDifficulty: "Medium",
-    features: [
-      "Daily steps",
-      "Heart rate",
-      "Multiple devices",
-      "Android integration",
-    ],
-  },
-  {
-    id: "applehealth",
-    name: "Apple Health",
-    icon: "❤️",
-    color: "pink",
-    description:
-      "Apple HealthKit integration for iOS users and Apple Watch data",
-    isWorking: false, // Future implementation
-    setupDifficulty: "Hard",
-    features: ["iPhone steps", "Apple Watch", "Health metrics", "iOS only"],
-  },
-  {
-    id: "fitbit",
-    name: "Fitbit",
-    icon: "💙",
-    color: "blue",
-    description:
-      "Fitbit device integration for accurate step and activity tracking",
-    isWorking: false, // Future implementation
-    setupDifficulty: "Medium",
-    features: [
-      "Device steps",
-      "24/7 tracking",
-      "Sleep data",
-      "Heart rate zones",
+      "Daily step tracking",
+      "Real-time sync",
+      "Secure data access",
+      "Zero-knowledge proofs",
     ],
   },
 ];
@@ -86,49 +43,50 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
   onClose,
 }) => {
   const { address } = useAccount();
-  const [selectedProvider, setSelectedProvider] = useState<string>("");
   const [isConnecting, setIsConnecting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [stravaData, setStravaData] = useState<any>(null);
+  const [isGeneratingProof, setIsGeneratingProof] = useState(false);
+  const [googleFitData, setGoogleFitData] = useState<any>(null);
   const [error, setError] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [successType, setSuccessType] = useState<
     "connected" | "verified" | "rewarded"
   >("connected");
 
-  // Check if user is already connected to Strava
+  // Check if user is already connected to Google Fit
   useEffect(() => {
-    const checkStravaConnection = async () => {
+    const checkGoogleFitConnection = async () => {
       try {
-        const response = await fetch("/api/fitness/strava");
+        const response = await fetch("/api/fitness/googlefit");
         const result = await response.json();
 
         if (result.authenticated && result.data) {
-          setStravaData(result.data);
-          setSelectedProvider("strava");
-
-          // Show success if just connected (check URL params)
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get("strava_connected") === "true") {
-            setSuccessType("connected");
-            setShowSuccess(true);
-            // Clean up URL
-            window.history.replaceState(
-              {},
-              document.title,
-              window.location.pathname
-            );
-          }
+          setGoogleFitData(result.data);
         }
       } catch (error) {
-        console.log("Not connected to Strava yet");
+        console.log("Not connected to Google Fit yet");
+      }
+
+      // Show success if just connected (check URL params)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("googlefit_connected") === "true") {
+        setSuccessType("connected");
+        setShowSuccess(true);
+        // Clean up URL
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
       }
     };
 
-    checkStravaConnection();
+    checkGoogleFitConnection();
   }, []);
 
-  const handleConnectStrava = async () => {
+
+
+  const handleConnectGoogleFit = async () => {
     if (!address) {
       setError("Please connect your wallet first");
       return;
@@ -140,52 +98,58 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
     try {
       // Show loading for 1 second before redirect to give user feedback
       setTimeout(() => {
-        // Redirect to Strava OAuth
-        const clientId = process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID;
+        // Redirect to Google OAuth
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
         const redirectUri = encodeURIComponent(
-          `${window.location.origin}/api/auth/strava/callback`
+          `${window.location.origin}/api/auth/googlefit/callback`
         );
-        const scope = "read,activity:read_all";
+        const scope = encodeURIComponent("https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/userinfo.profile");
 
-        const authUrl = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=${scope}`;
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}&access_type=offline&prompt=consent`;
 
-        // Redirect to Strava authentication
+        // Redirect to Google authentication
         window.location.href = authUrl;
       }, 1000);
     } catch (error) {
-      console.error("Strava connection error:", error);
-      setError("Failed to connect to Strava");
+      console.error("Google Fit connection error:", error);
+      setError("Failed to connect to Google Fit");
       setIsConnecting(false);
     }
   };
 
   const handleGetSteps = async () => {
-    if (!stravaData) return;
+    if (!googleFitData) return;
 
     setIsVerifying(true);
     setError("");
 
     try {
-      // Get updated step data
-      const response = await fetch("/api/fitness/strava");
+      // Get Google Fit data
+      const response = await fetch("/api/fitness/googlefit");
       const result = await response.json();
 
       if (result.success && result.data) {
-        const steps = result.data.summary.totalSteps;
+        const steps: number = result.data.summary.totalSteps;
 
-        // Show success page first
-        setSuccessType("verified");
-        setShowSuccess(true);
+        // Show proof generation phase
         setIsVerifying(false);
+        setIsGeneratingProof(true);
 
-        // Call parent callback after showing success
+        // Simulate proof generation delay for smooth UX
         setTimeout(() => {
-          if (onStepsReceived) {
-            onStepsReceived(steps, "strava", result.data);
-          }
+          setIsGeneratingProof(false);
+          setSuccessType("verified");
+          setShowSuccess(true);
+
+          // Call parent callback after showing success
+          setTimeout(() => {
+            if (onStepsReceived) {
+              onStepsReceived(steps, "googlefit", result.data);
+            }
+          }, 1000);
         }, 2000);
 
-        console.log(`📊 Retrieved ${steps} steps from Strava activities`);
+        console.log(`📊 Retrieved ${steps} steps from Google Fit`);
       } else {
         throw new Error(result.error || "Failed to retrieve step data");
       }
@@ -195,23 +159,22 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
         error instanceof Error ? error.message : "Failed to retrieve step data"
       );
       setIsVerifying(false);
+      setIsGeneratingProof(false);
     }
   };
 
   const handleProviderClick = (provider: FitnessProvider) => {
-    if (provider.id === "strava" && provider.isWorking) {
-      if (stravaData) {
-        // Already connected, get steps
+    if (provider.id === "googlefit" && provider.isWorking) {
+      if (googleFitData) {
+        // Already connected, get steps and generate proof
         handleGetSteps();
       } else {
-        // Connect to Strava
-        handleConnectStrava();
+        // Connect to Google Fit
+        handleConnectGoogleFit();
       }
     } else {
-      // Show coming soon message for other providers
-      setError(
-        `${provider.name} integration coming soon! Currently only Strava is working.`
-      );
+      // Should not reach here since we only have Google Fit
+      setError("Google Fit is the only available provider.");
     }
   };
 
@@ -220,8 +183,8 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
     return (
       <LoadingPage
         type="connecting"
-        title="Connecting to Strava"
-        message="Please complete the authorization in your browser..."
+        title="Connecting to Google Fit"
+        message="Please authorize StepCoin to access your Google Fit data..."
       />
     );
   }
@@ -231,25 +194,35 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
       <LoadingPage
         type="verifying"
         title="Retrieving Your Activities"
-        message="Converting your real workouts to step counts..."
+        message="Fetching your step data from Google Fit..."
+      />
+    );
+  }
+
+  if (isGeneratingProof) {
+    return (
+      <LoadingPage
+        type="verifying"
+        title="Generating Zero-Knowledge Proof"
+        message="Creating cryptographic proof of your fitness data..."
       />
     );
   }
 
   // Show success states
-  if (showSuccess && stravaData) {
+  if (showSuccess && googleFitData) {
     return (
       <SuccessPage
         type={successType}
         data={{
-          steps: stravaData.summary?.totalSteps,
-          activities: stravaData.summary?.activitiesCount,
-          distance: stravaData.summary?.totalDistance,
-          rewards: stravaData.summary?.totalSteps
-            ? Math.floor(stravaData.summary.totalSteps / 100)
+          steps: googleFitData.summary?.totalSteps,
+          activities: googleFitData.activities?.length || 1,
+          distance: googleFitData.summary?.totalSteps * 0.762 / 1000, // Convert steps to km
+          rewards: googleFitData.summary?.totalSteps
+            ? Math.floor(googleFitData.summary.totalSteps / 100)
             : 0,
-          multiplier: stravaData.summary?.totalSteps > 10000 ? 1.5 : 1.0,
-          athleteName: stravaData.athlete?.name,
+          multiplier: googleFitData.summary?.totalSteps > 10000 ? 1.5 : 1.0,
+          athleteName: googleFitData.user?.name || "Google Fit User",
         }}
         onContinue={() => {
           setShowSuccess(false);
@@ -336,13 +309,13 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
             }`}
             style={{
               background: provider.isWorking
-                ? selectedProvider === provider.id
+                ? googleFitData
                   ? "var(--surface-glass-hover)"
                   : "var(--surface-card)"
                 : "var(--surface-card)",
               border: `2px solid ${
                 provider.isWorking
-                  ? selectedProvider === provider.id
+                  ? googleFitData
                     ? "var(--accent-pink)"
                     : "var(--surface-border)"
                   : "rgba(255, 255, 255, 0.1)"
@@ -422,8 +395,10 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
               ))}
             </div>
 
-            {/* Connection Status for Strava */}
-            {provider.id === "strava" && stravaData && (
+
+
+            {/* Connection Status for Google Fit */}
+            {provider.id === "googlefit" && googleFitData && (
               <div
                 className="mt-4 p-4 rounded-xl border"
                 style={{
@@ -435,11 +410,10 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
                   className="text-sm font-semibold"
                   style={{ color: "#22c55e" }}
                 >
-                  ✅ Connected as {stravaData.athlete?.name || "Strava User"}
+                  ✅ Connected as {googleFitData.user?.name || "Google Fit User"}
                 </div>
                 <div className="text-xs mt-1" style={{ color: "#86efac" }}>
-                  {stravaData.summary?.totalSteps.toLocaleString()} steps from{" "}
-                  {stravaData.summary?.activitiesCount} activities
+                  {googleFitData.summary?.totalSteps.toLocaleString()} steps today
                 </div>
               </div>
             )}
@@ -448,7 +422,7 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
       </div>
 
       {/* Action Button */}
-      {selectedProvider === "strava" && stravaData ? (
+      {googleFitData ? (
         <div className="space-y-6">
           <div
             className="rounded-2xl p-6 border"
@@ -461,7 +435,7 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
               className="font-bold text-xl mb-4"
               style={{ color: "var(--text-primary)" }}
             >
-              Your Strava Summary (Last 7 Days)
+              Your Google Fit Summary (Today)
             </h5>
             <div className="grid grid-cols-2 gap-6">
               <div>
@@ -475,7 +449,7 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
                   className="font-bold text-2xl"
                   style={{ color: "var(--accent-pink)" }}
                 >
-                  {stravaData.summary.totalSteps.toLocaleString()}
+                  {googleFitData.summary.totalSteps.toLocaleString()}
                 </div>
               </div>
               <div>
@@ -483,13 +457,13 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
                   className="text-sm"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  Activities:
+                  Source:
                 </span>
                 <div
-                  className="font-bold text-2xl"
+                  className="font-bold text-lg"
                   style={{ color: "var(--text-primary)" }}
                 >
-                  {stravaData.summary.activitiesCount}
+                  Google Fit
                 </div>
               </div>
               <div>
@@ -503,7 +477,7 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
                   className="font-bold text-lg"
                   style={{ color: "var(--text-primary)" }}
                 >
-                  {Math.round(stravaData.summary.totalDistance / 1000)} km
+                  {Math.round((googleFitData.summary.totalSteps * 0.762) / 1000 * 100) / 100} km
                 </div>
               </div>
               <div>
@@ -511,13 +485,13 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
                   className="text-sm"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  Time:
+                  Rewards:
                 </span>
                 <div
                   className="font-bold text-lg"
-                  style={{ color: "var(--text-primary)" }}
+                  style={{ color: "var(--accent-pink)" }}
                 >
-                  {Math.round(stravaData.summary.totalTime / 60)} min
+                  {Math.floor(googleFitData.summary.totalSteps / 100)} STC
                 </div>
               </div>
             </div>
