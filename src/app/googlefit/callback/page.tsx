@@ -12,10 +12,11 @@ function GoogleFitCallbackContent() {
     "loading"
   );
   const [error, setError] = useState<string>("");
+  const [stepData, setStepData] = useState<any>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
-      const code = searchParams.get("code");
+      const success = searchParams.get("success");
       const errorParam = searchParams.get("error");
 
       if (errorParam) {
@@ -24,23 +25,28 @@ function GoogleFitCallbackContent() {
         return;
       }
 
-      if (!code) {
-        setStatus("error");
-        setError("No authorization code received");
-        return;
-      }
+      if (success === "true") {
+        try {
+          // Wait a moment for tokens to be set, then fetch step data
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const response = await fetch("/api/fitness/googlefit");
+          const result = await response.json();
 
-      try {
-        // The callback route should handle the token exchange
-        // Just redirect back to the main page with success indicator
-        setTimeout(() => {
-          router.replace("/?googlefit_connected=true");
-        }, 2000);
-
-        setStatus("success");
-      } catch (error) {
+          if (result.authenticated && result.data) {
+            setStepData(result.data);
+            setStatus("success");
+          } else {
+            setStatus("error");
+            setError("Failed to fetch your fitness data");
+          }
+        } catch (error) {
+          setStatus("error");
+          setError("Failed to complete authentication");
+        }
+      } else {
         setStatus("error");
-        setError("Failed to complete authentication");
+        setError("No authorization received");
       }
     };
 
@@ -51,8 +57,8 @@ function GoogleFitCallbackContent() {
     return (
       <LoadingPage
         type="connecting"
-        title="Completing Google Fit Connection"
-        message="Finalizing your authentication and setting up your account..."
+        title="Connecting Google Fit"
+        message="Verifying your authentication and fetching your step data..."
       />
     );
   }
@@ -78,12 +84,38 @@ function GoogleFitCallbackContent() {
   }
 
   return (
-    <SuccessPage
-      type="connected"
-      title="Google Fit Connected Successfully!"
-      message="Redirecting you back to claim your step rewards..."
-      onContinue={() => router.replace("/?googlefit_connected=true")}
-    />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl text-center border border-green-200">
+        <div className="text-8xl mb-6">✅</div>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          Connected Successfully!
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Your Google Fit account has been connected to StepCoin
+        </p>
+        
+        {stepData && (
+          <div className="bg-green-50 rounded-xl p-6 mb-6 border border-green-200">
+            <h3 className="text-xl font-semibold text-green-800 mb-2">
+              Today's Steps
+            </h3>
+            <div className="text-4xl font-bold text-green-600 mb-2">
+              {stepData.totalSteps?.toLocaleString() || '0'}
+            </div>
+            <p className="text-green-700 text-sm">
+              Connected as {stepData.userName || 'Google Fit User'}
+            </p>
+          </div>
+        )}
+        
+        <button
+          onClick={() => router.replace("/?googlefit_connected=true")}
+          className="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg"
+        >
+          Continue to Earn Rewards
+        </button>
+      </div>
+    </div>
   );
 }
 
