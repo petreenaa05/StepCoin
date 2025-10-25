@@ -519,7 +519,7 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
         <button
           onClick={() =>
             handleProviderClick(
-              FITNESS_PROVIDERS.find((p) => p.id === "strava")!
+              FITNESS_PROVIDERS.find((p) => p.id === "googlefit")!
             )
           }
           disabled={!address || isConnecting}
@@ -540,10 +540,10 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
           {isConnecting ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-              Connecting to Strava...
+              Connecting to Google Fit...
             </div>
           ) : (
-            "🟠 Connect Strava (Only Working Option)"
+            "✅ Connect Google Fit"
           )}
         </button>
       )}
@@ -594,7 +594,7 @@ export const MultiProviderFitness: React.FC<MultiProviderFitnessProps> = ({
         className="text-center mt-6 py-3"
         style={{ color: "var(--text-muted)" }}
       >
-        🚀 Currently only Strava is working • Other providers coming soon!
+        ✅ Google Fit is working perfectly • Secure step tracking enabled!
       </div>
     </div>
   );
